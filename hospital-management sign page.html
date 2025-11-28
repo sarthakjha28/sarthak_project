@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthConnect - Secure Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+        
+        .user-type-selector {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 5px;
+        }
+        
+        .user-type {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+        }
+        
+        .user-type.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 18px;
+        }
+        
+        .mfa-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: none;
+        }
+        
+        .mfa-section.active {
+            display: block;
+        }
+        
+        .mfa-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .mfa-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .mfa-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .mfa-option:hover, .mfa-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .biometric-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: transform 0.2s ease;
+        }
+        
+        .biometric-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .additional-options {
+            text-align: center;
+        }
+        
+        .additional-options a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .additional-options a:hover {
+            color: #764ba2;
+        }
+        
+        .security-notice {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-top: 25px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #155724;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px 25px;
+                margin: 10px;
+            }
+            
+            .user-type-selector {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .mfa-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <select class="language-selector" onchange="changeLanguage(this.value)">
+        <option value="en">🇺🇸 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="hi">🇮🇳 हिंदी</option>
+        <option value="zh">🇨🇳 中文</option>
+    </select>
+
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-icon">🏥</div>
+            <h1>HealthConnect</h1>
+            <p>Secure Healthcare Platform</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <div class="user-type-selector">
+            <button class="user-type active" data-type="patient" onclick="selectUserType('patient')">
+                👤 Patient
+            </button>
+            <button class="user-type" data-type="doctor" onclick="selectUserType('doctor')">
+                👨‍⚕️ Doctor
+            </button>
+            <button class="user-type" data-type="hospital" onclick="selectUserType('hospital')">
+                🏥 Hospital
+            </button>
+            <button class="user-type" data-type="insurance" onclick="selectUserType('insurance')">
+                🛡️ Insurance
+            </button>
+        </div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="Enter your registered email">
+            </div>
+            
+            <div class="form-group" style="position: relative;">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your secure password">
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    👁️
+                </button>
+            </div>
+            
+            <div class="mfa-section" id="mfaSection">
+                <h3 class="mfa-title">🔐 Multi-Factor Authentication</h3>
+                
+                <button type="button" class="biometric-btn" onclick="authenticateBiometric()">
+                    🔒 Use Fingerprint/Face ID
+                </button>
+                
+                <div class="mfa-options">
+                    <div class="mfa-option" onclick="selectMFA('sms')">
+                        📱 SMS Code
+                    </div>
+                    <div class="mfa-option" onclick="selectMFA('email')">
+                        📧 Email Code
+                    </div>
+                    <div class="mfa-option" onclick="selectMFA('app')">
+                        🔐 Authenticator App
+                    </div>
+                </div>
+                
+                <div class="form-group" id="mfaCodeGroup" style="display: none;">
+                    <label for="mfaCode">Verification Code</label>
+                    <input type="text" id="mfaCode" placeholder="Enter 6-digit code" maxlength="6">
+                </div>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginButton">
+                <span class="loading-spinner" id="loadingSpinner"></span>
+                <span id="loginText">🔒 Secure Login</span>
+            </button>
+        </form>
+        
+        <div class="additional-options">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+            <a href="#" onclick="showRegistration()">Create Account</a>
+            <a href="#" onclick="showHelp()">Need Help?</a>
+        </div>
+        
+        <div class="security-notice">
+            <strong>🔒 Security Notice:</strong> Your data is protected with military-grade encryption. 
+            All access is logged and monitored for HIPAA/GDPR compliance.
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registrationModal')">&times;</span>
+            <h2>Create New Account</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label>Account Type</label>
+                    <select id="regUserType" required>
+                        <option value="patient">Patient</option>
+                        <option value="doctor">Healthcare Provider</option>
+                        <option value="hospital">Hospital/Clinic</option>
+                        <option value="insurance">Insurance Company</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" required>
+                </div>
+                <button type="submit" class="btn">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUserType = 'patient';
+        let selectedMFA = null;
+        let isAuthenticated = false;
+
+        // User type selection
+        function selectUserType(type) {
+            currentUserType = type;
+            document.querySelectorAll('.user-type').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+            
+            // Show MFA section for secure accounts
+            if (type === 'doctor' || type === 'hospital' || type === 'insurance') {
+                document.getElementById('mfaSection').classList.add('active');
+            } else {
+                document.getElementById('mfaSection').classList.remove('active');
+            }
+        }
+
+        // Password visibility toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        // MFA selection
+        function selectMFA(method) {
+            selectedMFA = method;
+            document.querySelectorAll('.mfa-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Show code input
+            document.getElementById('mfaCodeGroup').style.display = 'block';
+            
+            // Simulate sending code
+            showMessage('info', `Verification code sent via ${method.toUpperCase()}`);
+        }
+
+        // Biometric authentication
+        function authenticateBiometric() {
+            if (navigator.credentials && window.PublicKeyCredential) {
+                // Simulate biometric authentication
+                showMessage('success', 'Biometric authentication successful!');
+                setTimeout(() => {
+                    proceedToMainApp();
+                }, 1500);
+            } else {
+                showMessage('error', 'Biometric authentication not available on this device');
+            }
+        }
+
+        // Handle login form submission
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const mfaCode = document.getElementById('mfaCode').value;
+            
+            // Show loading state
+            const loginButton = document.getElementById('loginButton');
+            const spinner = document.getElementById('loadingSpinner');
+            const loginText = document.getElementById('loginText');
+            
+            loginButton.disabled = true;
+            spinner.style.display = 'inline-block';
+            loginText.textContent = 'Authenticating...';
+            
+            // Simulate authentication process
+            setTimeout(() => {
+                if (validateCredentials(email, password, mfaCode)) {
+                    showMessage('success', 'Authentication successful! Redirecting...');
+                    setTimeout(() => {
+                        proceedToMainApp();
+                    }, 1500);
+                } else {
+                    showMessage('error', 'Invalid credentials. Please try again.');
+                    resetLoginButton();
+                }
+            }, 2000);
+        }
+
+        // Validate credentials (mock validation)
+        function validateCredentials(email, password, mfaCode) {
+            // Mock validation - in real app, this would be API call
+            if (email && password.length >= 8) {
+                if (currentUserType === 'patient' || (selectedMFA && mfaCode && mfaCode.length === 6)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Reset login button state
+        function resetLoginButton() {
+            const loginButton = document.getElementById('loginButton');
+            const spinner = document.getElementById('loadingSpinner');
+            const loginText = document.getElementById('loginText');
+            
+            loginButton.disabled = false;
+            spinner.style.display = 'none';
+            loginText.textContent = '🔒 Secure Login';
+        }
+
+        // Show messages
+        function showMessage(type, message) {
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            
+            // Hide all messages first
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            if (type === 'error') {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            } else if (type === 'success' || type === 'info') {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+            }
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        // Language change
+        function changeLanguage(lang) {
+            // In a real app, this would change all text content
+            showMessage('info', `Language changed to ${lang.toUpperCase()}`);
+        }
+
+        // Show forgot password
+        function showForgotPassword() {
+            const email = prompt('Enter your email address for password reset:');
+            if (email) {
+                showMessage('info', 'Password reset link sent to your email');
+            }
+        }
+
+        // Show registration modal
+        function showRegistration() {
+            document.getElementById('registrationModal').style.display = 'block';
+        }
+
+        // Show help
+        function showHelp() {
+            alert('For technical support, please contact:\n\n📧 support@healthconnect.com\n📞 1-800-HEALTH-1\n\n🔒 All communications are secure and HIPAA compliant');
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Proceed to main application
+        function proceedToMainApp() {
+            // Hide login container and show main app
+            document.querySelector('.login-container').style.display = 'none';
+            
+            // Create and show main application interface
+            const mainApp = document.createElement('div');
+            mainApp.innerHTML = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>MedLink - Integrated Medical Data Platform</title>
+                    <style>
+                        :root {
+                            --primary-color: #2563eb;
+                            --secondary-color: #059669;
+                            --danger-color: #dc2626;
+                            --warning-color: #f59e0b;
+                            --info-color: #0891b2;
+                            --success-color: #16a34a;
+                            --dark-bg: #1f2937;
+                            --card-bg: #ffffff;
+                            --text-primary: #111827;
+                            --text-secondary: #6b7280;
+                            --border-color: #e5e7eb;
+                        }
+
+                        body {
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            min-height: 100vh;
+                            color: var(--text-primary);
+                            margin: 0;
+                            padding: 0;
+                        }
+
+                        .container {
+                            max-width: 1400px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+
+                        .header {
+                            background: rgba(255, 255, 255, 0.95);
+                            backdrop-filter: blur(20px);
+                            border-radius: 20px;
+                            padding: 30px;
+                            margin-bottom: 30px;
+                            text-align: center;
+                            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                            border: 1px solid rgba(255, 255, 255, 0.2);
+                        }
+
+                        .header h1 {
+                            font-size: 3rem;
+                            font-weight: 700;
+                            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            margin-bottom: 10px;
+                        }
+
+                        .header .subtitle {
+                            font-size: 1.2rem;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        }
+
+                        .emergency-bar {
+                            background: linear-gradient(135deg, var(--danger-color), #ef4444);
+                            color: white;
+                            padding: 15px;
+                            border-radius: 15px;
+                            margin-bottom: 20px;
+                            text-align: center;
+                            position: relative;
+                            overflow: hidden;
+                            animation: pulse 2s infinite;
+                        }
+
+                        @keyframes pulse {
+                            0%, 100% { transform: scale(1); }
+                            50% { transform: scale(1.02); }
+                        }
+
+                        .emergency-btn {
+                            background: rgba(255, 255, 255, 0.2);
+                            border: 2px solid white;
+                            color: white;
+                            padding: 12px 24px;
+                            border-radius: 25px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            margin: 0 10px;
+                        }
+
+                        .emergency-btn:hover {
+                            background: white;
+                            color: var(--danger-color);
+                            transform: translateY(-2px);
+                        }
+
+                        .nav-tabs {
+                            display: flex;
+                            gap: 10px;
+                            margin-bottom: 30px;
+                            flex-wrap: wrap;
+                            justify-content: center;
+                        }
+
+                        .nav-tab {
+                            background: rgba(255, 255, 255, 0.9);
+                            color: var(--primary-color);
+                            border: none;
+                            padding: 15px 25px;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            backdrop-filter: blur(10px);
+                            border: 2px solid transparent;
+                            font-weight: 600;
+                            font-size: 14px;
+                        }
+
+                        .nav-tab:hover {
+                            background: var(--primary-color);
+                            color: white;
+                            transform: translateY(-2px);
+                            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+                        }
+
+                        .nav-tab.active {
+                            background: var(--primary-color);
+                            color: white;
+                            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+                        }
+
+                        .content-section {
+                            display: none;
+                            background: rgba(255, 255, 255, 0.95);
+                            border-radius: 20px;
+                            padding: 40px;
+                            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                            backdrop-filter: blur(20px);
+                        }
+
+                        .content-section.active {
+                            display: block;
+                            animation: slideIn 0.6s ease-out;
+                        }
+
+                        @keyframes slideIn {
+                            from { opacity: 0; transform: translateY(30px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+
+                        .dashboard-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                            gap: 25px;
+                            margin-bottom: 40px;
+                        }
+
+                        .stat-card {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 30px;
+                            border-radius: 20px;
+                            text-align: center;
+                            position: relative;
+                            overflow: hidden;
+                            transition: transform 0.3s ease;
+                        }
+
+                        .stat-card:hover {
+                            transform: translateY(-5px);
+                        }
+
+                        .stat-number {
+                            font-size: 3rem;
+                            font-weight: 700;
+                            margin-bottom: 10px;
+                        }
+
+                        .stat-label {
+                            font-size: 1.1rem;
+                            opacity: 0.9;
+                        }
+
+                        .btn {
+                            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 25px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                            margin-right: 15px;
+                            margin-bottom: 10px;
+                        }
+
+                        .btn:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+                        }
+
+                        .alert {
+                            padding: 15px 20px;
+                            border-radius: 12px;
+                            margin-bottom: 20px;
+                        }
+
+                        .alert-info {
+                            background-color: #e0f2fe;
+                            border: 1px solid #bae6fd;
+                            color: #0c4a6e;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>🏥 MedLink</h1>
+                            <p class="subtitle">Welcome back, ${currentUserType.charAt(0).toUpperCase() + currentUserType.slice(1)}! Integrated Medical Data Platform with Privacy & Compliance</p>
+                        </div>
+
+                        <div class="emergency-bar">
+                            <h3>🚨 EMERGENCY MODE</h3>
+                            <button class="emergency-btn" onclick="activateEmergencyMode()">SEND LOCATION & MEDICAL INFO</button>
+                            <button class="emergency-btn" onclick="generateQRPassport()">GENERATE QR HEALTH PASSPORT</button>
+                        </div>
+
+                        <div class="nav-tabs">
+                            <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
+                            <button class="nav-tab" onclick="showSection('bed-map')">Live Bed Map</button>
+                            <button class="nav-tab" onclick="showSection('data-sharing')">Secure Sharing</button>
+                            <button class="nav-tab" onclick="showSection('privacy')">Privacy & Consent</button>
+                            <button class="nav-tab" onclick="showSection('doctor-switch')">Doctor Switch</button>
+                            <button class="nav-tab" onclick="showSection('transparency')">Data Transparency</button>
+                            <button class="nav-tab" onclick="showSection('insurance')">Insurance Partners</button>
+                            <button class="nav-tab" onclick="showSection('ai-coach')">AI Health Coach</button>
+                            <button class="nav-tab" onclick="showSection('shopping')">Medicine Store</button>
+                        </div>
+
+                        <div id="dashboard" class="content-section active">
+                            <h2>Medical Data Integration Dashboard</h2>
+                            <div class="dashboard-grid">
+                                <div class="stat-card">
+                                    <div class="stat-number">127</div>
+                                    <div class="stat-label">Connected Hospitals</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">45,892</div>
+                                    <div class="stat-label">Active Patients</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">1,234</div>
+                                    <div class="stat-label">Secure Data Shares Today</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">2,847</div>
+                                    <div class="stat-label">Available Beds</div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                ✅ System Status: All privacy protocols active. HIPAA compliant data processing enabled. Welcome to your secure healthcare dashboard!
+                            </div>
+
+                            <div style="text-align: center; padding: 40px;">
+                                <h3>🎉 Authentication Successful!</h3>
+                                <p>You have successfully logged in as a <strong>${currentUserType}</strong>.</p>
+                                <p>This is a demo of the main application interface. All ${currentUserType === 'patient' ? '10' : '8'} key features would be fully functional here:</p>
+                                
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; text-align: left;">
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🗺️ Live Hospital Bed Map</h4>
+                                        <p>Real-time bed availability with filters and booking</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🔐 Secure Data Sharing</h4>
+                                        <p>Encrypted patient data sharing with hospitals & insurance</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🛡️ Privacy Controls</h4>
+                                        <p>Granular consent management and data access control</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>👨‍⚕️ Doctor Switch</h4>
+                                        <p>AI-powered medical record transfer system</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>📊 Data Transparency</h4>
+                                        <p>Complete audit trail of who accessed your data</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🚨 Emergency QR Passport</h4>
+                                        <p>Instant access to critical health info for paramedics</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🤖 AI Health Coach</h4>
+                                        <p>Personalized health tips and early warning system</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>♿ Accessibility Support</h4>
+                                        <p>Multi-language, voice commands, screen reader support</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🛒 Medicine Shopping</h4>
+                                        <p>Online pharmacy with prescription validation</p>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                        <h4>🏥 Insurance Integration</h4>
+                                        <p>Real-time coverage info and claims processing</p>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn" onclick="location.reload()" style="margin-top: 30px;">
+                                    🔄 Return to Login (Demo Reset)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Replace body content with main app
+            document.body.innerHTML = mainApp.innerHTML;
+        }
+
+        // Handle registration form
+        document.getElementById('registrationForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showMessage('success', 'Registration successful! Please check your email for verification.');
+            closeModal('registrationModal');
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize accessibility features
+        document.addEventListener('keydown', function(e) {
+            // Enter key for login
+            if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') {
+                document.getElementById('loginButton').click();
+            }
+            
+            // Escape key to close modals
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+            }
+        });
+
+        // Auto-focus email input on load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').focus();
+        });
+    </script>

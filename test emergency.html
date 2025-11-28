@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency SOS System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc2626, #ef4444, #f87171);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        .emergency-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .emergency-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .status-indicator {
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .status-indicator.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .status-indicator.error {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        .status-indicator.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22c55e;
+            color: #16a34a;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .location-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .location-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .location-info {
+            flex: 1;
+        }
+
+        .location-info h3 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .coordinates {
+            color: #666;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .emergency-contacts {
+            margin-bottom: 20px;
+        }
+
+        .emergency-contacts h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .contact-phone {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-btn {
+            background: #25d366;
+            color: white;
+        }
+
+        .whatsapp-btn:hover {
+            background: #22c55e;
+            transform: translateY(-1px);
+        }
+
+        .call-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .call-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .emergency-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .sos-btn {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sos-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .sos-btn.active {
+            animation: emergency-pulse 1s infinite;
+        }
+
+        @keyframes emergency-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); }
+        }
+
+        .location-btn {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        }
+
+        .location-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .emergency-info {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .emergency-info h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .emergency-info ul {
+            color: #666;
+            padding-left: 20px;
+        }
+
+        .emergency-info li {
+            margin-bottom: 5px;
+        }
+
+        .countdown {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #dc2626;
+            margin: 10px 0;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #dc2626;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .emergency-header h1 {
+                font-size: 2rem;
+            }
+            
+            .contact-actions {
+                flex-direction: column;
+            }
+            
+            .sos-btn {
+                font-size: 1.2rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emergency-header">
+            <h1>🚨 EMERGENCY SOS</h1>
+            <p>Quick access to emergency contacts and location sharing</p>
+        </div>
+
+        <div id="statusIndicator" class="status-indicator">
+            <span id="statusMessage"></span>
+        </div>
+
+        <div class="location-section">
+            <div class="location-status">
+                <div class="location-icon">📍</div>
+                <div class="location-info">
+                    <h3 id="locationStatus">Location: Not Available</h3>
+                    <div id="coordinates" class="coordinates">Click "Get Location" to share your position</div>
+                </div>
+            </div>
+            <button id="getLocationBtn" class="location-btn" onclick="getCurrentLocation()">
+                🌍 Get Current Location
+            </button>
+        </div>
+
+        <div class="emergency-contacts">
+            <h3>👥 Emergency Contacts</h3>
+            <div class="contact-list" id="contactList">
+                <!-- Contacts will be populated here -->
+            </div>
+        </div>
+
+        <div class="emergency-buttons">
+            <button id="sosBtn" class="sos-btn" onclick="activateSOS()">
+                🚨 EMERGENCY SOS
+                <div>Send location to all contacts</div>
+            </button>
+        </div>
+
+        <div class="emergency-info">
+            <h4>⚠️ Emergency SOS Features:</h4>
+            <ul>
+                <li>Instantly share your location via WhatsApp</li>
+                <li>Quick call buttons for each contact</li>
+                <li>Automatic message with emergency details</li>
+                <li>GPS coordinates with map link</li>
+                <li>One-tap activation for critical situations</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Emergency contacts data
+        let emergencyContacts = [
+            {
+                id: 1,
+                name: "Dr. Sarah Wilson",
+                phone: "+911234567890",
+                relation: "Primary Doctor",
+                avatar: "Dr"
+            },
+            {
+                id: 2,
+                name: "John Smith",
+                phone: "+911234567891",
+                relation: "Emergency Contact",
+                avatar: "JS"
+            },
+            {
+                id: 3,
+                name: "Emergency Services",
+                phone: "112",
+                relation: "Emergency Hotline",
+                avatar: "🚑"
+            },
+            {
+                id: 4,
+                name: "Maria Garcia",
+                phone: "+911234567892",
+                relation: "Family Member",
+                avatar: "MG"
+            }
+        ];
+
+        let currentLocation = null;
+        let sosActive = false;
+
+        // Initialize the system
+        document.addEventListener('DOMContentLoaded', function() {
+            renderContacts();
+            checkGeolocationSupport();
+        });
+
+        function checkGeolocationSupport() {
+            if (!navigator.geolocation) {
+                showStatus('error', 'Geolocation is not supported by this browser');
+                document.getElementById('getLocationBtn').disabled = true;
+            }
+        }
+
+        function renderContacts() {
+            const contactList = document.getElementById('contactList');
+            contactList.innerHTML = '';
+
+            emergencyContacts.forEach(contact => {
+                const contactItem = document.createElement('div');
+                contactItem.className = 'contact-item';
+                contactItem.innerHTML = `
+                    <div class="contact-avatar">${contact.avatar}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-phone">${contact.phone} • ${contact.relation}</div>
+                    </div>
+                    <div class="contact-actions">
+                        <button class="action-btn whatsapp-btn" onclick="sendWhatsApp('${contact.phone}', '${contact.name}')">
+                            💬 WhatsApp
+                        </button>
+                        <button class="action-btn call-btn" onclick="makeCall('${contact.phone}')">
+                            📞 Call
+                        </button>
+                    </div>
+                `;
+                contactList.appendChild(contactItem);
+            });
+        }
+
+        function getCurrentLocation() {
+            const btn = document.getElementById('getLocationBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="loading-spinner"></span>Getting location...';
+            btn.disabled = true;
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    currentLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toLocaleString()
+                    };
+
+                    updateLocationDisplay();
+                    showStatus('success', 'Location acquired successfully!');
+                    
+                    btn.innerHTML = '✅ Location Updated';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                },
+                function(error) {
+                    let errorMessage = 'Unable to get location: ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Location access denied by user';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Location information unavailable';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Location request timed out';
+                            break;
+                        default:
+                            errorMessage += 'An unknown error occurred';
+                            break;
+                    }
+                    
+                    showStatus('error', errorMessage);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                },
+                options
+            );
+        }
+
+        function updateLocationDisplay() {
+            if (!currentLocation) return;
+
+            const locationStatus = document.getElementById('locationStatus');
+            const coordinates = document.getElementById('coordinates');
+
+            locationStatus.textContent = `Location: Acquired (±${Math.round(currentLocation.accuracy)}m)`;
+            coordinates.innerHTML = `
+                Lat: ${currentLocation.latitude.toFixed(6)}, 
+                Lng: ${currentLocation.longitude.toFixed(6)}<br>
+                Updated: ${currentLocation.timestamp}
+            `;
+        }
+
+        function generateEmergencyMessage() {
+            const timestamp = new Date().toLocaleString();
+            let message = `🚨 EMERGENCY ALERT 🚨\n\n`;
+            message += `I need immediate assistance!\n\n`;
+            message += `Time: ${timestamp}\n`;
+            
+            if (currentLocation) {
+                message += `📍 My Location:\n`;
+                message += `Latitude: ${currentLocation.latitude}\n`;
+                message += `Longitude: ${currentLocation.longitude}\n`;
+                message += `Accuracy: ±${Math.round(currentLocation.accuracy)} meters\n\n`;
+                message += `🗺️ View on Maps:\n`;
+                message += `https://www.google.com/maps?q=${currentLocation.latitude},${currentLocation.longitude}\n\n`;
+            } else {
+                message += `⚠️ Location not available - please call immediately!\n\n`;
+            }
+            
+            message += `This is an automated emergency message from HealthConnect SOS system.`;
+            
+            return encodeURIComponent(message);
+        }
+
+        function sendWhatsApp(phoneNumber, contactName) {
+            const message = generateEmergencyMessage();
+            
+            // Clean phone number for WhatsApp
+            const cleanPhone = phoneNumber.replace(/\D/g, '');
+            
+            // Generate WhatsApp URL
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`;
+            
+            // Open WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            showStatus('success', `Emergency message sent to ${contactName} via WhatsApp`);
+        }
+
+        function makeCall(phoneNumber) {
+            // For mobile devices, this will initiate a call
+            window.location.href = `tel:${phoneNumber}`;
+            
+            showStatus('success', `Calling ${phoneNumber}...`);
+        }
+
+        function activateSOS() {
+            if (sosActive) return;
+
+            if (!currentLocation) {
+                if (confirm('Location not available. Get location first before sending SOS?\n\nClick OK to get location, or Cancel to send without location.')) {
+                    getCurrentLocation();
+                    setTimeout(() => {
+                        if (currentLocation) {
+                            activateSOS();
+                        }
+                    }, 3000);
+                    return;
+                }
+            }
+
+            sosActive = true;
+            const sosBtn = document.getElementById('sosBtn');
+            sosBtn.classList.add('active');
+            sosBtn.innerHTML = `
+                <div class="loading-spinner"></div>
+                SENDING EMERGENCY ALERTS...
+                <div class="countdown" id="countdown">3</div>
+            `;
+
+            // Countdown before sending
+            let countdown = 3;
+            const countdownElement = document.getElementById('countdown');
+            
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdownElement) {
+                    countdownElement.textContent = countdown;
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    sendEmergencyAlerts();
+                }
+            }, 1000);
+
+            // Allow cancellation
+            sosBtn.onclick = function() {
+                if (confirm('Cancel emergency alert?')) {
+                    clearInterval(countdownInterval);
+                    resetSOS();
+                }
+            };
+        }
+
+        function sendEmergencyAlerts() {
+            showStatus('success', 'Sending emergency alerts to all contacts...');
+
+            // Send to all contacts
+            emergencyContacts.forEach((contact, index) => {
+                setTimeout(() => {
+                    if (contact.phone === '112') {
+                        // For emergency services, just show call option
+                        makeCall(contact.phone);
+                    } else {
+                        // Send WhatsApp message to others
+                        sendWhatsApp(contact.phone, contact.name);
+                    }
+                }, index * 500); // Stagger the sends
+            });
+
+            setTimeout(() => {
+                showStatus('success', `✅ Emergency alerts sent to ${emergencyContacts.length} contacts!`);
+                resetSOS();
+            }, emergencyContacts.length * 500 + 1000);
+        }
+
+        function resetSOS() {
+            sosActive = false;
+            const sosBtn = document.getElementById('sosBtn');
+            sosBtn.classList.remove('active');
+            sosBtn.innerHTML = `
+                🚨 EMERGENCY SOS
+                <div>Send location to all contacts</div>
+            `;
+            sosBtn.onclick = activateSOS;
+        }
+
+        function showStatus(type, message) {
+            const indicator = document.getElementById('statusIndicator');
+            const messageElement = document.getElementById('statusMessage');
+            
+            indicator.className = `status-indicator active ${type}`;
+            messageElement.textContent = message;
+            
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 5000);
+        }
+
+        // Auto-get location on page load if user permits
+        setTimeout(() => {
+            if (navigator.geolocation) {
+                getCurrentLocation();
+            }
+        }, 1000);
+
+        // Add contact function (for demo purposes)
+        function addEmergencyContact() {
+            const name = prompt('Enter contact name:');
+            const phone = prompt('Enter phone number:');
+            const relation = prompt('Enter relation (e.g., Family, Friend, Doctor):');
+            
+            if (name && phone && relation) {
+                const newContact = {
+                    id: emergencyContacts.length + 1,
+                    name: name,
+                    phone: phone,
+                    relation: relation,
+                    avatar: name.split(' ').map(n => n[0]).join('').toUpperCase()
+                };
+                
+                emergencyContacts.push(newContact);
+                renderContacts();
+                showStatus('success', `${name} added as emergency contact`);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + E for emergency
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                activateSOS();
+            }
+            
+            // Ctrl + L for location
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                getCurrentLocation();
+            }
+            
+            // Escape to cancel SOS
+            if (e.key === 'Escape' && sosActive) {
+                if (confirm('Cancel emergency alert?')) {
+                    resetSOS();
+                }
+            }
+        });
+
+        // Prevent accidental page refresh during emergency
+        window.addEventListener('beforeunload', function(e) {
+            if (sosActive) {
+                e.preventDefault();
+                e.returnValue = 'Emergency alert in progress. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+    </script>
+</body>
+</html>

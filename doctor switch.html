@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Switch - HealthConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .current-doctor-card {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(40, 167, 69, 0.3);
+        }
+        
+        .current-doctor-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .doctor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+        
+        .doctor-details h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .doctor-details p {
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+        
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+        
+        .search-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .search-group input,
+        .search-group select {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-group input:focus,
+        .search-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .doctor-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .doctor-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .doctor-card-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .doctor-card-info h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .doctor-card-info .specialization {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .doctor-details {
+            margin-bottom: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .availability-status {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .available {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .busy {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .rating {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+        
+        .star {
+            color: #ffc107;
+            font-size: 16px;
+        }
+        
+        .rating-text {
+            margin-left: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .switch-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .switch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .switch-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .contact-btn {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        
+        .contact-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .transfer-status {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            display: none;
+        }
+        
+        .transfer-status.active {
+            display: block;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            animation: progressAnimation 2s ease-in-out;
+        }
+        
+        @keyframes progressAnimation {
+            0% { width: 0%; }
+            100% { width: var(--progress-width); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .disease-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .disease-tag {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .doctors-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .current-doctor-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="javascript:history.back()" class="back-btn">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>👨‍⚕️ Doctor Switch</h1>
+            <p>AI-Powered Medical Record Transfer System</p>
+        </div>
+        
+        <div class="current-doctor-card">
+            <h2>Current Primary Doctor</h2>
+            <div class="current-doctor-info">
+                <div class="doctor-avatar">👨‍⚕️</div>
+                <div class="doctor-details">
+                    <h3>Dr. Rajesh Kumar</h3>
+                    <p>Specialization: General Medicine</p>
+                    <p>Hospital: AIIMS Delhi</p>
+                    <p>Patient since: January 2022</p>
+                    <p>Last consultation: March 15, 2025</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="transfer-status" id="transferStatus">
+            <h3>🔄 Medical Record Transfer in Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="--progress-width: 0%;"></div>
+            </div>
+            <p id="transferMessage">Initializing secure transfer...</p>
+        </div>
+        
+        <div class="search-section">
+            <h2>Find Your New Doctor</h2>
+            <div class="search-grid">
+                <div class="search-group">
+                    <label for="doctorSearch">Doctor Name</label>
+                    <input type="text" id="doctorSearch" placeholder="Search by doctor name..." 
+                           oninput="filterDoctors()">
+                </div>
+                <div class="search-group">
+                    <label for="specializationFilter">Specialization</label>
+                    <select id="specializationFilter" onchange="filterDoctors()">
+                        <option value="">All Specializations</option>
+                        <option value="General Medicine">General Medicine</option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Orthopedics">Orthopedics</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Gynecology">Gynecology</option>
+                        <option value="Psychiatry">Psychiatry</option>
+                        <option value="Oncology">Oncology</option>
+                        <option value="ENT">ENT</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label for="diseaseFilter">Medical Condition</label>
+                    <input type="text" id="diseaseFilter" placeholder="e.g., diabetes, hypertension..." 
+                           oninput="filterDoctors()">
+                </div>
+                <div class="search-group">
+                    <label for="locationFilter">Location</label>
+                    <select id="locationFilter" onchange="filterDoctors()">
+                        <option value="">All Locations</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Faridabad">Faridabad</option>
+                        <option value="Gurgaon">Gurgaon</option>
+                        <option value="Noida">Noida</option>
+                        <option value="Ghaziabad">Ghaziabad</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <button class="search-btn" onclick="refreshDoctors()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <p>Loading doctor profiles...</p>
+        </div>
+        
+        <div id="doctorsContainer">
+            <div class="doctors-grid" id="doctorsGrid">
+                <!-- Doctor cards will be populated by JavaScript -->
+            </div>
+            
+            <div id="noResults" class="no-results" style="display: none;">
+                <h3>No doctors found</h3>
+                <p>Try adjusting your search filters or contact support for assistance.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock doctor data - in real app, this would come from /api/doctors
+        let doctorData = [
+            {
+                id: 1,
+                name: "Dr. Priya Sharma",
+                specialization: "Cardiology",
+                hospital: "Fortis Hospital",
+                location: "Faridabad",
+                availability: "Available",
+                rating: 4.8,
+                experience: "15 years",
+                patients: 1250,
+                nextSlot: "Today 3:00 PM",
+                diseases: ["Heart Disease", "Hypertension", "Arrhythmia", "Heart Failure"],
+                phone: "+91-129-4299999",
+                email: "dr.priya@fortis.com"
+            },
+            {
+                id: 2,
+                name: "Dr. Amit Gupta",
+                specialization: "Neurology",
+                hospital: "Max Healthcare",
+                location: "Gurgaon",
+                availability: "Busy",
+                rating: 4.9,
+                experience: "20 years",
+                patients: 980,
+                nextSlot: "Tomorrow 10:00 AM",
+                diseases: ["Migraine", "Epilepsy", "Stroke", "Parkinson's"],
+                phone: "+91-124-4511111",
+                email: "dr.amit@maxhealthcare.com"
+            },
+            {
+                id: 3,
+                name: "Dr. Sunita Verma",
+                specialization: "General Medicine",
+                hospital: "Apollo Hospital",
+                location: "Delhi",
+                availability: "Available",
+                rating: 4.7,
+                experience: "12 years",
+                patients: 2150,
+                nextSlot: "Today 4:30 PM",
+                diseases: ["Diabetes", "Hypertension", "Thyroid", "General Health"],
+                phone: "+91-11-26925801",
+                email: "dr.sunita@apollo.com"
+            },
+            {
+                id: 4,
+                name: "Dr. Vikram Singh",
+                specialization: "Orthopedics",
+                hospital: "Medanta Hospital",
+                location: "Gurgaon",
+                availability: "Available",
+                rating: 4.6,
+                experience: "18 years",
+                patients: 850,
+                nextSlot: "Today 2:00 PM",
+                diseases: ["Arthritis", "Fractures", "Back Pain", "Joint Problems"],
+                phone: "+91-124-4141414",
+                email: "dr.vikram@medanta.com"
+            },
+            {
+                id: 5,
+                name: "Dr. Kavita Jain",
+                specialization: "Dermatology",
+                hospital: "BLK Hospital",
+                location: "Delhi",
+                availability: "Available",
+                rating: 4.8,
+                experience: "14 years",
+                patients: 1890,
+                nextSlot: "Tomorrow 11:00 AM",
+                diseases: ["Skin Allergies", "Acne", "Psoriasis", "Hair Loss"],
+                phone: "+91-11-30403040",
+                email: "dr.kavita@blk.com"
+            },
+            {
+                id: 6,
+                name: "Dr. Rohit Mehta",
+                specialization: "Pediatrics",
+                hospital: "Jaypee Hospital",
+                location: "Noida",
+                availability: "Busy",
+                rating: 4.9,
+                experience: "16 years",
+                patients: 3200,
+                nextSlot: "Day after tomorrow 9:00 AM",
+                diseases: ["Child Health", "Vaccination", "Growth Issues", "Pediatric Care"],
+                phone: "+91-120-4123456",
+                email: "dr.rohit@jaypee.com"
+            },
+            {
+                id: 7,
+                name: "Dr. Neha Agarwal",
+                specialization: "Gynecology",
+                hospital: "QRG Central Hospital",
+                location: "Faridabad",
+                availability: "Available",
+                rating: 4.7,
+                experience: "13 years",
+                patients: 1650,
+                nextSlot: "Today 5:00 PM",
+                diseases: ["Women's Health", "Pregnancy", "PCOS", "Menstrual Issues"],
+                phone: "+91-129-4192222",
+                email: "dr.neha@qrg.com"
+            },
+            {
+                id: 8,
+                name: "Dr. Anish Kumar",
+                specialization: "Psychiatry",
+                hospital: "Sarvodaya Hospital",
+                location: "Faridabad",
+                availability: "Available",
+                rating: 4.8,
+                experience: "11 years",
+                patients: 750,
+                nextSlot: "Today 6:00 PM",
+                diseases: ["Depression", "Anxiety", "Stress", "Mental Health"],
+                phone: "+91-129-4055555",
+                email: "dr.anish@sarvodaya.com"
+            }
+        ];
+        
+        let filteredDoctors = [...doctorData];
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            simulateDataLoad();
+        });
+        
+        // Simulate loading doctor data
+        function simulateDataLoad() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('doctorsContainer').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('doctorsContainer').style.display = 'block';
+                updateDoctorGrid();
+            }, 1500);
+        }
+        
+        // Update doctor grid
+        function updateDoctorGrid() {
+            const grid = document.getElementById('doctorsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            if (filteredDoctors.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+            grid.innerHTML = '';
+            
+            filteredDoctors.forEach(doctor => {
+                const card = document.createElement('div');
+                card.className = 'doctor-card';
+                
+                const stars = '★'.repeat(Math.floor(doctor.rating)) + (doctor.rating % 1 >= 0.5 ? '☆' : '');
+                const availabilityClass = doctor.availability.toLowerCase().replace(' ', '-');
+                
+                card.innerHTML = `
+                    <div class="doctor-card-header">
+                        <div class="doctor-card-avatar">${doctor.name.split(' ')[1][0]}</div>
+                        <div class="doctor-card-info">
+                            <h3>${doctor.name}</h3>
+                            <div class="specialization">${doctor.specialization}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="doctor-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Hospital:</span>
+                            <span class="detail-value">${doctor.hospital}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">${doctor.location}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Experience:</span>
+                            <span class="detail-value">${doctor.experience}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Patients:</span>
+                            <span class="detail-value">${doctor.patients.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Rating:</span>
+                            <span class="detail-value">
+                                <div class="rating">
+                                    <span class="star">${stars}</span>
+                                    <span class="rating-text">${doctor.rating}/5</span>
+                                </div>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="availability-status ${availabilityClass}">${doctor.availability}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Next Slot:</span>
+                            <span class="detail-value">${doctor.nextSlot}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-tags">
+                        ${doctor.diseases.map(disease => `<span class="disease-tag">${disease}</span>`).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="contact-btn" onclick="contactDoctor(${doctor.id})">📞 Contact</button>
+                        <button class="contact-btn" onclick="viewProfile(${doctor.id})">👤 Profile</button>
+                    </div>
+                    
+                    <button class="switch-btn" onclick="switchToDoctor(${doctor.id})" 
+                            ${doctor.availability === 'Unavailable' ? 'disabled' : ''}>
+                        ${doctor.availability === 'Unavailable' ? 'Currently Unavailable' : '🔄 Switch to This Doctor'}
+                    </button>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        // Filter doctors based on search criteria
+        function filterDoctors() {
+            const nameSearch = document.getElementById('doctorSearch').value.toLowerCase();
+            const specializationFilter = document.getElementById('specializationFilter').value;
+            const diseaseFilter = document.getElementById('diseaseFilter').value.toLowerCase();
+            const locationFilter = document.getElementById('locationFilter').value;
+            
+            filteredDoctors = doctorData.filter(doctor => {
+                const matchesName = doctor.name.toLowerCase().includes(nameSearch);
+                const matchesSpecialization = !specializationFilter || doctor.specialization === specializationFilter;
+                const matchesDisease = !diseaseFilter || doctor.diseases.some(disease => 
+                    disease.toLowerCase().includes(diseaseFilter));
+                const matchesLocation = !locationFilter || doctor.location === locationFilter;
+                
+                return matchesName && matchesSpecialization && matchesDisease && matchesLocation;
+            });
+            
+            updateDoctorGrid();
+        }
+        
+        // Switch to new doctor
+        function switchToDoctor(doctorId) {
+            const doctor = doctorData.find(d => d.id === doctorId);
+            if (!doctor) return;
+            
+            if (confirm(`Switch to ${doctor.name}?\n\nThis will:\n• Transfer all your medical records securely\n• Notify your current doctor\n• Schedule an introductory consultation\n\nContinue?`)) {
+                startDoctorTransfer(doctor);
+            }
+        }
+        
+        // Start doctor transfer process
+        function startDoctorTransfer(doctor) {
+            const transferStatus = document.getElementById('transferStatus');
+            const progressFill = document.getElementById('progressFill');
+            const transferMessage = document.getElementById('transferMessage');
+            
+            transferStatus.classList.add('active');
+            
+            const transferSteps = [
+                { progress: 20, message: "Verifying patient identity..." },
+                { progress: 40, message: "Encrypting medical records..." },
+                { progress: 60, message: "Transferring data securely..." },
+                { progress: 80, message: "Notifying current doctor..." },
+                { progress: 100, message: "Transfer complete! Welcome to your new doctor." }
+            ];
+            
+            let currentStep = 0;
+            
+            const transferInterval = setInterval(() => {
+                if (currentStep < transferSteps.length) {
+                    const step = transferSteps[currentStep];
+                    progressFill.style.setProperty('--progress-width', step.progress + '%');
+                    progressFill.style.width = step.progress + '%';
+                    transferMessage.textContent = step.message;
+                    currentStep++;
+                } else {
+                    clearInterval(transferInterval);
+                    setTimeout(() => {
+                        showTransferComplete(doctor);
+                    }, 1000);
+                }
+            }, 1500);
+        }
+        
+        // Show transfer completion
+        function showTransferComplete(doctor) {
+            alert(`✅ Doctor Switch Successful!\n\nYour new primary doctor is ${doctor.name}\nSpecialization: ${doctor.specialization}\nHospital: ${doctor.hospital}\n\nYour medical records have been securely transferred.\nAn introductory consultation has been scheduled for ${doctor.nextSlot}.\n\nReference ID: DS${Date.now()}`);
+            
+            // Simulate redirect back to dashboard
+            setTimeout(() => {
+                if (confirm('Return to dashboard?')) {
+                    window.history.back();
+                }
+            }, 2000);
+        }
+        
+        // Contact doctor
+        function contactDoctor(doctorId) {
+            const doctor = doctorData.find(d => d.id === doctorId);
+            if (doctor) {
+                alert(`Contact Information for ${doctor.name}:\n\n📞 Phone: ${doctor.phone}\n📧 Email: ${doctor.email}\n🏥 Hospital: ${doctor.hospital}\n📍 Location: ${doctor.location}\n\nNext Available: ${doctor.nextSlot}`);
+            }
+        }
+        
+        // View doctor profile
+        function viewProfile(doctorId) {
+            const doctor = doctorData.find(d => d.id === doctorId);
+            if (doctor) {
+                alert(`${doctor.name} - Detailed Profile:\n\n🎓 Specialization: ${doctor.specialization}\n⭐ Rating: ${doctor.rating}/5 stars\n💼 Experience: ${doctor.experience}\n👥 Total Patients: ${doctor.patients.toLocaleString()}\n🏥 Hospital: ${doctor.hospital}\n📍 Location: ${doctor.location}\n\n🏷️ Specializes in:\n${doctor.diseases.join(', ')}\n\n📅 Next Available: ${doctor.nextSlot}`);
+            }
+        }
+        
+        // Refresh doctor data
+        function refreshDoctors() {
+            // Simulate data refresh with minor changes
+            doctorData.forEach(doctor => {
+                // Randomly update availability
+                if (Math.random() < 0.2) {
+                    const statuses = ['Available', 'Busy', 'Unavailable'];
+                    doctor.availability = statuses[Math.floor(Math.random() * statuses.length)];
+                }
+                
+                // Update next slot times
+                const hours = Math.floor(Math.random() * 12) + 1;
+                const minutes = Math.random() < 0.5 ? '00' : '30';
+                const period = Math.random() < 0.5 ? 'AM' : 'PM';
+                doctor.nextSlot = `Today ${hours}:${minutes} ${period}`;
+            });
+            
+            simulateDataLoad();
+            
+            // Show refresh notification
+            const originalText = document.querySelector('.search-btn').textContent;
+            document.querySelector('.search-btn').textContent = '✅ Updated';
+            setTimeout(() => {
+                document.querySelector('.search-btn').textContent = originalText;
+            }, 2000);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('doctorSearch').focus();
+            }
+        });
+        
+        // Auto-focus search on load
+        window.addEventListener('load', function() {
+            document.getElementById('doctorSearch').focus();
+        });
+    </script>
+</body>
+</html>
